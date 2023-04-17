@@ -11,4 +11,8 @@ public class CatEdge extends Edge {
     public void changeWeight(double newWeight) {
         weight = newWeight;
     }
+
+    public double weight() {
+        return weight;
+    }
 }
