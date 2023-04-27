@@ -11,10 +11,6 @@ public class CatGraph extends EdgeWeightedGraph {
             adj[v] = new Bag<CatEdge>();
         }
     }
-
-    public Iterable<CatEdge> adj(int v) {
-        return adj[v];
-    }
 }
 
 

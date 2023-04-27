@@ -1,11 +1,12 @@
 import edu.princeton.cs.algs4.DijkstraUndirectedSP;
 import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.Edge;
 
 public class CatGame {
     private boolean escaped, trapped;
-    private int numCols, catPosition;
+    public int numCols, catPosition;
     private CatGraph board;
-    private boolean[] marked;
+    public boolean[] marked;
 
     public CatGame(int n) {
         numCols = n;
@@ -20,34 +21,48 @@ public class CatGame {
             int c = indToPos(i)[1];
 
             if (r == 0 || c == 0 || r == (n-1) || c == (n-1)) {
-                board.addEdge(new CatEdge(i, n*n, 1));
+                board.addEdge(new CatEdge(i, n*n));
             }
-            if (c > 0 && r < n) {
-                board.addEdge(new CatEdge(i, posToInd(r, c-1), 1));
+            if (c > 0 && r <= n) {
+                board.addEdge(new CatEdge(i, posToInd(r, c-1)));
             }
             if (r > 0 && r < n) {
-                board.addEdge(new CatEdge(i, posToInd(r, c-1), 1));
+                board.addEdge(new CatEdge(i, posToInd(r-1, c)));
+                if (r % 2 == 1) {
+                    board.addEdge(new CatEdge(i, posToInd(r-1, c+1)));
+                }
+                if (r%2 == 0) {
+                    board.addEdge(new CatEdge(i, posToInd(r-1, c-1)));
+                }
             }
         }
-        int numBlocked = (int)(Math.random() * n/2) + n/2; 
+        int numBlocked = (int)(Math.random() * (n-1)/2) + (n-1)/2; 
         
         for (int i = 0; i < numBlocked; i++) {
-            marked[(int)(Math.random()*(n*n))] = false;
+            int index = (int)(Math.random()*(n*n)-1);
+            marked[index] = true;
+            for (Edge j : board.adj(index)) {
+                CatEdge e = (CatEdge) j;
+                e.changeWeight(Double.POSITIVE_INFINITY);
+            }
         }
     }
 
     public void markTile(int row, int col) { //do i need to indicate escaped/trapped somehow?
         int index = posToInd(row, col);
         marked[index] = true;
-        for (CatEdge i : board.adj(index)) {
-            i.changeWeight(Double.POSITIVE_INFINITY);
+
+        for (Edge i : board.adj(index)) {
+            CatEdge e = (CatEdge) i;
+            e.changeWeight(Double.POSITIVE_INFINITY);
         }
         DijkstraUndirectedSP sp = new DijkstraUndirectedSP(board, index);
         if (!sp.hasPathTo(numCols*numCols)) { // might need to do distto == infinity
+            System.out.println("dspt trapped");
             trapped = true;
         }
         else {
-            Stack<CatEdge> path = sp.pathTo(numCols*numCols);
+            Stack<Edge> path = (Stack<Edge>) sp.pathTo(numCols*numCols);
             catPosition = path.pop().other(catPosition);
         }
         if (catPosition == numCols*numCols) {
@@ -83,6 +98,22 @@ public class CatGame {
     }
 
     public static void main(String[] args) {
-        CatGame g = new CatGame(5);
+        CatGame g = new CatGame(3);
+        for (int i = 0; i < g.marked.length; i++) {
+            System.out.println("i: " + i + ", " + g.marked[i]);
+        }
+        System.out.println();
+        for (Edge i : g.board.edges()) {
+            int v = i.either();
+            int w = i.other(v);
+            System.out.println(v + ", " +  w + ", " + i.weight());
+        }
+        // System.out.println("trapped? " + g.catIsTrapped());
+        // System.out.println("pos: " + g.catPosition);
+        // g.markTile(0, 0);
+        // System.out.println("pos: " + g.catPosition);
+        // g.markTile(1, 0);
+        // System.out.println("pos: " + g.catPosition);
+        // System.out.println(g.catHasEscaped());
     }
 }

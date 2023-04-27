@@ -4,8 +4,8 @@ public class CatEdge extends Edge {
 
     private double weight;
 
-    public CatEdge(int v, int w, double weight) {
-        super(v, w, weight);
+    public CatEdge(int v, int w) {
+        super(v, w, 1);
     }
     
     public void changeWeight(double newWeight) {
