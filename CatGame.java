@@ -16,26 +16,38 @@ public class CatGame {
         board = new CatGraph(n*n + 1);
         marked = new boolean[n*n + 1];
 
-        for (int i = 0; i < n*n; i++) {
-            int r = indToPos(i)[0];
-            int c = indToPos(i)[1];
-
-            if (r == 0 || c == 0 || r == (n-1) || c == (n-1)) {
-                board.addEdge(new CatEdge(i, n*n));
-            }
-            if (c > 0 && r <= n) {
-                board.addEdge(new CatEdge(i, posToInd(r, c-1)));
-            }
-            if (r > 0 && r < n) {
-                board.addEdge(new CatEdge(i, posToInd(r-1, c)));
-                if (r % 2 == 1) {
-                    board.addEdge(new CatEdge(i, posToInd(r-1, c+1)));
+        for (int r = 0; r < n; r ++) {
+            //non bottom rows
+            if (r < n-1) {
+                for (int c = 0; c < n; c++){
+                    int index = posToInd(r, c); 
+                    if (r == 0 || c == 0 || c == n-1) {
+                        board.addEdge(new CatEdge(index, n*n)); //freedom hexagon
+                    }
+                    if (c < n-1) {
+                        board.addEdge(new CatEdge(index, index+1)); //to the right
+                    }
+                    if (r%n == 0 && c > 0) {
+                        board.addEdge(new CatEdge(index, index+n-1)); //down and to the left 
+                    }
+                    if (r%n == 1 && c < n-1) {
+                        board.addEdge(new CatEdge(index, index+n+1)); //down and to the right 
+                    }
+                    board.addEdge(new CatEdge(index, index+n)); //down
                 }
-                if (r%2 == 0) {
-                    board.addEdge(new CatEdge(i, posToInd(r-1, c-1)));
+            }
+            //bottom row
+            else if (r == n-1) {
+                for (int c = 0; c < n; c++){
+                    int index = posToInd(r, c);
+                    board.addEdge(new CatEdge(index, n*n)); //freedom hexagon
+                    if (c < n-1) {
+                        board.addEdge(new CatEdge(index, index+1)); //to the right
+                    }
                 }
             }
         }
+
         int numBlocked = (int)(Math.random() * (n-1)/2) + (n-1)/2; 
         
         for (int i = 0; i < numBlocked; i++) {
