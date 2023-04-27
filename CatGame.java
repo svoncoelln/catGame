@@ -36,15 +36,23 @@ public class CatGame {
         }
     }
 
-    public void markTile(int row, int col) {
+    public void markTile(int row, int col) { //do i need to indicate escaped/trapped somehow?
         int index = posToInd(row, col);
         marked[index] = true;
         for (CatEdge i : board.adj(index)) {
             i.changeWeight(Double.POSITIVE_INFINITY);
         }
         DijkstraUndirectedSP sp = new DijkstraUndirectedSP(board, index);
-        Stack<CatEdge> path = sp.pathTo(numCols*numCols);
-        catPosition = path.pop().other(catPosition);
+        if (!sp.hasPathTo(numCols*numCols)) { // might need to do distto == infinity
+            trapped = true;
+        }
+        else {
+            Stack<CatEdge> path = sp.pathTo(numCols*numCols);
+            catPosition = path.pop().other(catPosition);
+        }
+        if (catPosition == numCols*numCols) {
+            escaped = true;
+        }
     }
 
     public boolean marked(int row, int col) {
