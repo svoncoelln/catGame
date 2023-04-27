@@ -1,13 +1,16 @@
+import edu.princeton.cs.algs4.DijkstraUndirectedSP;
+import edu.princeton.cs.algs4.Stack;
+
 public class CatGame {
-    private boolean escaped;
-    private int numCols;
-    private int catPosition;
+    private boolean escaped, trapped;
+    private int numCols, catPosition;
     private CatGraph board;
     private boolean[] marked;
 
     public CatGame(int n) {
         numCols = n;
         escaped = false;
+        trapped = false;
         catPosition = posToInd(numCols/2, numCols/2);
         board = new CatGraph(n*n + 1);
         marked = new boolean[n*n + 1];
@@ -33,8 +36,23 @@ public class CatGame {
         }
     }
 
+    public void markTile(int row, int col) {
+        int index = posToInd(row, col);
+        marked[index] = true;
+        for (CatEdge i : board.adj(index)) {
+            i.changeWeight(Double.POSITIVE_INFINITY);
+        }
+        DijkstraUndirectedSP sp = new DijkstraUndirectedSP(board, index);
+        Stack<CatEdge> path = sp.pathTo(numCols*numCols);
+        catPosition = path.pop().other(catPosition);
+    }
+
     public boolean marked(int row, int col) {
         return marked[posToInd(row, col)]; //check distTo
+    }
+
+    public boolean catIsTrapped() {
+        return trapped;
     }
 
     public boolean catHasEscaped() {
