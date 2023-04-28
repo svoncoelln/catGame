@@ -6,6 +6,7 @@ public class CatEdge extends Edge {
 
     public CatEdge(int v, int w) {
         super(v, w, 1);
+        weight = 1;
     }
     
     public void changeWeight(double newWeight) {
