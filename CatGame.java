@@ -49,37 +49,33 @@ public class CatGame {
             }
         }
 
-        int numBlocked = (int)(Math.random() * (n-1)/2) + (n-1)/2; 
+        int numBlocked = (int)(Math.random() * n/2) + n; 
         
         for (int i = 0; i < numBlocked; i++) {
             int index = (int)(Math.random()*(n*n)-1);
-            marked[index] = true;
-            for (Edge j : board.adj(index)) {
-                CatEdge e = (CatEdge) j;
-                e.changeWeight(Double.POSITIVE_INFINITY);
+            if (index != catPosition) {
+                updateTileWeights(index);
             }
         }
     }
 
     public void markTile(int row, int col) { 
         int index = posToInd(row, col);
-        marked[index] = true;
 
-        for (Edge i : board.adj(index)) {
-            CatEdge e = (CatEdge) i;
-            e.changeWeight(Double.POSITIVE_INFINITY);
-        }
-        
-        sp = new DijkstraUndirectedSP(board, index);
-        if (!sp.hasPathTo(numCols*numCols)) { 
-            trapped = true;
-        }
-        else {
-            Stack<Edge> path = (Stack<Edge>) sp.pathTo(numCols*numCols);
-            catPosition = path.pop().other(catPosition);
-        }
-        if (catPosition == numCols*numCols) {
-            escaped = true;
+        if (index != catPosition) {
+            updateTileWeights(index);
+            
+            sp = new DijkstraUndirectedSP(board, catPosition);
+            if (!sp.hasPathTo(numCols*numCols)) { 
+                trapped = true;
+            }
+            else {
+                Stack<Edge> path = (Stack<Edge>) sp.pathTo(numCols*numCols);
+                catPosition = path.pop().other(catPosition);
+            }
+            if (catPosition == numCols*numCols) {
+                escaped = true;
+            }
         }
     }
 
@@ -99,6 +95,14 @@ public class CatGame {
         return indToPos(catPosition);
     }
 
+    private void updateTileWeights(int index) {
+        marked[index] = true;
+        for (Edge i : board.adj(index)) {
+            CatEdge e = (CatEdge) i;
+            e.changeWeight(Double.POSITIVE_INFINITY);
+        }
+    }
+
     private int posToInd(int row, int col) {
         return row*numCols + col;
     }
@@ -108,11 +112,5 @@ public class CatGame {
         int c = index % numCols;
         int[] result = {r, c};
         return result;
-    }
-
-    public static void main(String[] args) {
-        CatGame g = new CatGame(4);
-        g.markTile(0, 0);
-        System.out.println(g.sp.distTo(16));
     }
 }
